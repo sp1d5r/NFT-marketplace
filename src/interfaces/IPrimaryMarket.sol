@@ -1,31 +1,56 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.10;
 
+import {ITicketNFT} from "./ITicketNFT.sol";
+
 /**
  * @dev Required interface for the primary market.
  * The primary market is the first point of sale for tickets.
  * It is responsible for minting tickets and transferring them to the purchaser.
- * In this implementation, the purchase price is fixed at 100e18 purchase tokens
- * and the maximum number of tickets that can be purchased is 1000.
- * The purchase token is an ERC20 token that is specified when the contract is deployed.
  * The NFT to be minted is an implementation of the ITicketNFT interface and should be created (i.e. deployed)
- * when the contract implementing this interface is deployed.
+ * when a new event NFT collection is created
+ * In this implementation, the purchase price and the maximum number of tickets
+ * is set when an event NFT collection is created
+ * The purchase token is an ERC20 token that is specified when the contract is deployed.
  */
 interface IPrimaryMarket {
+/**
+     * @dev Emitted when a purchase by `holder` occurs, with `holderName` specified.
+     */
+    event EventCreated(
+        address indexed creator,
+        address indexed ticketCollection,
+        string eventName,
+        uint256 price,
+        uint256 maxNumberOfTickets
+    );
+
     /**
      * @dev Emitted when a purchase by `holder` occurs, with `holderName` specified.
      */
-    event Purchase(address indexed holder, string indexed holderName);
+    event Purchase(
+        address indexed holder,
+        address indexed ticketCollection,
+        uint256 ticketId,
+        string holderName
+    );
+
+    function createNewEvent(
+        string memory eventName,
+        uint256 price,
+        uint256 maxNumberOfTickets
+    ) external returns (ITicketNFT ticketCollection);
 
     /**
-     * @dev Returns the administrator of the primary market.
-     * This should be the address that created the contract.
-     */
-    function admin() external view returns (address);
-
-    /**
+     * @notice Allows a user to purchase a ticket from `ticketCollectionNFT`
      * @dev Takes the initial NFT token holder's name as a string input
-     * and transfers ERC20 tokens from the purchaser to the admin of this contract
+     * and transfers ERC20 tokens from the purchaser to the creator of the NFT collection
+     * @param ticketCollection the collection from which to buy the ticket
+     * @param holderName the name of the buyer
+     * @return id of the purchased ticket
      */
-    function purchase(string memory holderName) external;
+    function purchase(
+        address ticketCollection,
+        string memory holderName
+    ) external returns (uint256 id);
 }

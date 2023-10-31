@@ -25,6 +25,12 @@ interface ITicketNFT {
     );
 
     /**
+     * @dev Returns the address of the user who created the NFT collection
+     * This is the address of the user who called `createNewEvent` in the primary market
+     */
+    function creator() external view returns (address);
+
+    /**
      * Mints a new ticket for `holder` with `holderName`.
      * The ticket must be assigned the following metadata:
      * - A unique ticket ID. Once a ticket has been used or expired, its ID should not be reallocated
@@ -130,7 +136,7 @@ interface ITicketNFT {
      * - `ticketID` must exist
      * - the ticket must not already be used
      * - the ticket must not be expired
-     * - Only the administrator of the primary market can call this function
+     * - Only the creator of the collection can call this function
      */
     function setUsed(uint256 ticketID) external;
 

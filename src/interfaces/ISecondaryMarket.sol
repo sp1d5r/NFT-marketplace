@@ -10,8 +10,9 @@ interface ISecondaryMarket {
      * @dev Event emitted when a new ticket listing is created
      */
     event Listing(
-        uint256 indexed ticketID,
         address indexed holder,
+        address indexed ticketCollection,
+        uint256 indexed ticketID,
         uint256 price
     );
 
@@ -20,6 +21,7 @@ interface ISecondaryMarket {
      */
     event Purchase(
         address indexed purchaser,
+        address indexed ticketCollection,
         uint256 indexed ticketID,
         uint256 price,
         string newName
@@ -27,7 +29,7 @@ interface ISecondaryMarket {
     /**
      * @dev Event emitted when a ticket is delisted
      */
-    event Delisting(uint256 indexed ticketID);
+    event Delisting(address indexed ticketCollection, uint256 indexed ticketID);
 
     /**
      * @dev This method lists a ticket with `ticketID` for sale by transferring the ticket
@@ -36,21 +38,40 @@ interface ISecondaryMarket {
      * `price` is specified in an amount of `PurchaseToken`.
      * Note: Only non-expired and unused tickets can be listed
      */
-    function listTicket(uint256 ticketID, uint256 price) external;
+    function listTicket(
+        address ticketCollection,
+        uint256 ticketID,
+        uint256 price
+    ) external;
 
-    /** @dev This method allows the msg.sender to purchase a listed ticket with `ticketID`
-     * by paying the purchase price that was specified when the ticket was listed.
+    /** @notice This method allows the msg.sender to submit a bid for the ticket from `ticketCollection` with `ticketID`
+     * The `bidAmount` should be kept in escrow by the contract until the bid is accepted, a higher bid is made,
+     * or the ticket is delisted.
+     * If this is not the first bid for this ticket, `bidAmount` must be strictly higher that the previous bid.
      * `name` gives the new name that should be stated on the ticket when it is purchased.
-     * Note: Only non-expired and unused tickets can be purchased and there is a
-     * fee charged every time a purchase is made. The fee is charged on the price.
-     * The final amount that the lister of the ticket receives is the price
-     * minus the fee. The fee should go to the admin of the primary market.
+     * Note: Bid can only be made on non-expired and unused tickets
      */
-    function purchase(uint256 ticketID, string calldata name) external;
+    function submitBid(
+        address ticketCollection,
+        uint256 ticketID,
+        uint256 bidAmount,
+        string calldata name
+    ) external;
 
-    /** @dev This method delists a previously listed ticket with `ticketID`. Only the account that
-     * listed the ticket may delist the ticket. The ticket should be transferred back
-     * to msg.sender, i.e., the lister.
+	/*
+     * @notice Allow the lister of the ticket from `ticketCollection` with `ticketID` to accept the current highest bid.
+     * This function reverts if there is currently no bid.
+     * Otherwise, it should accept the highest bid, transfer the money to the lister of the ticket,
+     * and transfer the ticket to the highest bidder after having set the ticket holder name appropriately.
+     * A fee charged when the bid is accepted. The fee is charged on the bid amount.
+     * The final amount that the lister of the ticket receives is the price
+     * minus the fee. The fee should go to the creator of the `ticketCollection`.
      */
-    function delistTicket(uint256 ticketID) external;
+    function acceptBid(address ticketCollection, uint256 ticketID) external;
+
+    /** @notice This method delists a previously listed ticket of `ticketCollection` with `ticketID`. Only the account that
+     * listed the ticket may delist the ticket. The ticket should be transferred back
+     * to msg.sender, i.e., the lister, and escrowed bid funds should be return to the bidder, if any.
+     */
+    function delistTicket(address ticketCollection, uint256 ticketID) external;
 }
