@@ -14,7 +14,7 @@ import {ITicketNFT} from "./ITicketNFT.sol";
  * The purchase token is an ERC20 token that is specified when the contract is deployed.
  */
 interface IPrimaryMarket {
-/**
+    /**
      * @dev Emitted when a purchase by `holder` occurs, with `holderName` specified.
      */
     event EventCreated(
@@ -35,6 +35,12 @@ interface IPrimaryMarket {
         string holderName
     );
 
+    /**
+     *
+     * @param eventName is the name of the event to create
+     * @param price is the price of a single ticket for this event
+     * @param maxNumberOfTickets is the maximum number of tickets that can be created for this event
+     */
     function createNewEvent(
         string memory eventName,
         uint256 price,
@@ -53,4 +59,12 @@ interface IPrimaryMarket {
         address ticketCollection,
         string memory holderName
     ) external returns (uint256 id);
+
+    /**
+     * @param ticketCollection the collection from which to get the price
+     * @return price of a ticket for the event associated with `ticketCollection`
+     */
+    function getPrice(
+        address ticketCollection
+    ) external view returns (uint256 price);
 }

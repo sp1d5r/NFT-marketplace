@@ -17,15 +17,27 @@ interface ISecondaryMarket {
     );
 
     /**
-     * @dev Event emitted when an amount of the purchase token is transferred from
+     * @dev Event emitted when a bid has been submitted for the ticket
      */
-    event Purchase(
-        address indexed purchaser,
+    event BidSubmitted(
+        address indexed bidder,
         address indexed ticketCollection,
         uint256 indexed ticketID,
-        uint256 price,
+        uint256 bidAmount,
         string newName
     );
+
+    /**
+     * @dev Event emitted when a bid has been submitted for the ticket
+     */
+    event BidAccepted(
+        address indexed bidder,
+        address indexed ticketCollection,
+        uint256 indexed ticketID,
+        uint256 bidAmount,
+        string newName
+    );
+
     /**
      * @dev Event emitted when a ticket is delisted
      */
@@ -58,7 +70,23 @@ interface ISecondaryMarket {
         string calldata name
     ) external;
 
-	/*
+    /**
+     * Returns the current highest bid for the ticket from `ticketCollection` with `ticketID`
+     */
+    function getHighestBid(
+        address ticketCollection,
+        uint256 ticketId
+    ) external view returns (uint256);
+
+    /**
+     * Returns the current highest bidder for the ticket from `ticketCollection` with `ticketID`
+     */
+    function getHighestBidder(
+        address ticketCollection,
+        uint256 ticketId
+    ) external view returns (address);
+
+    /*
      * @notice Allow the lister of the ticket from `ticketCollection` with `ticketID` to accept the current highest bid.
      * This function reverts if there is currently no bid.
      * Otherwise, it should accept the highest bid, transfer the money to the lister of the ticket,

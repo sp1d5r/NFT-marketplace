@@ -31,6 +31,16 @@ interface ITicketNFT {
     function creator() external view returns (address);
 
     /**
+     * @dev Returns the maximum number of tickets that can be minted for this event.
+     */
+    function maxNumberOfTickets() external view returns (uint256);
+
+	/**
+     * @dev Returns the name of the event for this TicketNFT
+     */
+    function eventName() external view returns (string memory);
+
+    /**
      * Mints a new ticket for `holder` with `holderName`.
      * The ticket must be assigned the following metadata:
      * - A unique ticket ID. Once a ticket has been used or expired, its ID should not be reallocated
@@ -42,7 +52,7 @@ interface ITicketNFT {
      *
      * - The caller must be the primary market
      */
-    function mint(address holder, string memory holderName) external;
+    function mint(address holder, string memory holderName) external returns (uint256 id);
 
     /**
      * @dev Returns the number of tickets a `holder` has.
